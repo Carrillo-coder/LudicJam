@@ -11,6 +11,8 @@ public class IntroController : MonoBehaviour
     private int indiceActual = 0;
     private bool enTransicion = false;
 
+    public AudioSource audioTrueno;
+
     void Start()
     {
         introCanvas.SetActive(true);
@@ -33,21 +35,35 @@ public class IntroController : MonoBehaviour
             else
             {
                 StartCoroutine(FadeOut(textos[indiceActual], () => {
-                introCanvas.SetActive(false); // Fin de la intro
-                if (fantasyRawImage != null)
-                    fantasyRawImage.SetActive(true); // Activa la vista de fantasía
-    }));
-}
-
+                    introCanvas.SetActive(false); // Fin de la intro
+                    if (fantasyRawImage != null)
+                        fantasyRawImage.SetActive(true); // Activa la vista de fantasía
+                }));
+            }
         }
     }
 
     IEnumerator CambiarTexto(CanvasGroup actual, CanvasGroup siguiente)
     {
         enTransicion = true;
+
+        // Fade out del texto actual
         yield return FadeOut(actual);
-        yield return new WaitForSeconds(0.2f);
+
+        // Si estamos pasando al último texto
+        if (indiceActual == textos.Length - 1 && audioTrueno != null)
+        {
+            yield return new WaitForSeconds(0.4f); // Espera antes del trueno
+            audioTrueno.Play();
+        }
+        else
+        {
+            yield return new WaitForSeconds(0.2f); // Tiempo normal entre textos
+        }
+
+        // Fade in del siguiente texto
         yield return FadeIn(siguiente);
+
         enTransicion = false;
     }
 
